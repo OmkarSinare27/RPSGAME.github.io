@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Rock Paper Scissors</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom right, #29b6f6, #64b5f6, #90caf9);
+      background-size: cover;
+      background-repeat: no-repeat;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: backgroundAnimation 10s ease-in-out infinite alternate;
+    }
+
+    @keyframes backgroundAnimation {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    .container {
+      padding: 20px;
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 8px;
+    }
+
+    h1 {
+      color: #333;
+      font-size: 28px;
+      margin-bottom: 20px;
+      animation: textColorAnimation 5s ease-in-out infinite alternate;
+    }
+
+    @keyframes textColorAnimation {
+      0% { color: #333; }
+      50% { color: #FF4081; }
+      100% { color: #333; }
+    }
+
+    .play-btn {
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      animation: btnPulse 1.5s ease-in-out infinite;
+    }
+
+    .play-btn:hover {
+      background-color: #45a049;
+    }
+
+    .play-btn:active {
+      background-color: #3e8749;
+    }
+
+    @keyframes btnPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    .name-input {
+      padding: 10px;
+      font-size: 18px;
+      border-radius: 4px;
+      border: 1px solid #4CAF50;
+      outline: none;
+      transition: border-color 0.3s ease-in-out;
+    }
+
+    .name-input:focus {
+      border-color: #45a049;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 40px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      animation: btnScale 0.3s ease-in-out;
+    }
+
+    @keyframes btnScale {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      animation: resultTextColorAnimation 5s ease-in-out infinite alternate;
+    }
+
+    @keyframes resultTextColorAnimation {
+      0% { color: #fff; }
+      50% { color: #FF4081; }
+      100% { color: #fff; }
+    }
+
+    .result-animate {
+      animation-duration: 0.5s;
+      animation-fill-mode: both;
+    }
+
+    .result-win {
+      animation-name: winAnimation;
+      color: #4CAF50;
+    }
+
+    .result-lose {
+      animation-name: loseAnimation;
+      color: #e53935;
+    }
+
+    .result-tie {
+      animation-name: tieAnimation;
+      color: #ffa726;
+    }
+
+    @keyframes winAnimation {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.7; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes loseAnimation {
+      0% { transform: rotateY(0); opacity: 1; }
+      50% { transform: rotateY(360deg); opacity: 0.7; }
+      100% { transform: rotateY(0); opacity: 1; }
+    }
+
+    @keyframes tieAnimation {
+      0% { transform: translateY(0); opacity: 1; }
+      50% { transform: translateY(-20px); opacity: 0.7; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* New styles for game results */
+    #previous-results {
+      margin-top: 40px;
+      text-align: left;
+    }
+
+    .result-item {
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 4px;
+      background-color: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      animation: resultItemAnimation 0.5s ease-in-out;
+    }
+
+    @keyframes resultItemAnimation {
+      0% { transform: translateY(20px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div id="home" class="container">
+    <h1>Welcome to Rock Paper Scissors</h1>
+    <label for="player-name">Enter your name:</label><br>
+    <input type="text" id="player-name" class="name-input" placeholder="Your Name"><br>
+    <button class="play-btn" onclick="redirectToGame()">Play Game</button>
+  </div>
+  
+  <div id="game" class="hidden">
+    <h1>Rock Paper Scissors</h1>
+    <div id="game-buttons">
+      <button class="btn" onclick="playGame('rock')">✊</button>
+      <button class="btn" onclick="playGame('paper')">✋</button>
+      <button class="btn" onclick="playGame('scissors')">✌️</button>
+    </div>
+    <div id="result"></div>
+    <div id="player-name-display" class="hidden"></div>
+  </div>
+  
+  <div id="previous-results" class="hidden"></div>
+  
+  <script>
+    var gameResults = [];
+
+    function redirectToGame() {
+      var playerName = document.getElementById("player-name").value;
+      if (playerName.trim() !== "") {
+        document.getElementById("home").classList.add("hidden");
+        document.getElementById("game").classList.remove("hidden");
+        document.getElementById("player-name-display").innerHTML = "Hello, " + playerName + "!";
+        document.getElementById("player-name-display").classList.remove("hidden");
+      }
+    }
+
+    function playGame(playerSelection) {
+      var computerSelection = getComputerSelection();
+      var result = determineWinner(playerSelection, computerSelection);
+      displayResult(playerSelection, computerSelection, result);
+      saveGameResult(playerSelection, computerSelection, result);
+    }
+
+    function getComputerSelection() {
+      var options = ["rock", "paper", "scissors"];
+      var randomIndex = Math.floor(Math.random() * options.length);
+      return options[randomIndex];
+    }
+
+    function determineWinner(playerSelection, computerSelection) {
+      if (playerSelection === computerSelection) {
+        return "tie";
+      } else if (
+        (playerSelection === "rock" && computerSelection === "scissors") ||
+        (playerSelection === "paper" && computerSelection === "rock") ||
+        (playerSelection === "scissors" && computerSelection === "paper")
+      ) {
+        return "win";
+      } else {
+        return "lose";
+      }
+    }
+
+    function displayResult(playerSelection, computerSelection, result) {
+      var resultElement = document.getElementById("result");
+      var playerName = document.getElementById("player-name").value;
+      resultElement.innerHTML = "";
+
+      var playerResult = document.createElement("span");
+      playerResult.innerHTML = playerName + ": <b>" + playerSelection + "</b>";
+      playerResult.classList.add("result-animate");
+      resultElement.appendChild(playerResult);
+
+      var vsText = document.createElement("span");
+      vsText.innerHTML = " vs ";
+      vsText.classList.add("result-animate");
+      resultElement.appendChild(vsText);
+
+      var computerResult = document.createElement("span");
+      computerResult.innerHTML = "<b>" + computerSelection + "</b>: Computer";
+      computerResult.classList.add("result-animate");
+      resultElement.appendChild(computerResult);
+
+      resultElement.classList.remove("result-win", "result-lose", "result-tie");
+      resultElement.classList.add("result-" + result);
+    }
+
+    function saveGameResult(playerSelection, computerSelection, result) {
+      var gameResult = {
+        playerSelection: playerSelection,
+        computerSelection: computerSelection,
+        result: result
+      };
+      gameResults.push(gameResult);
+
+      displayPreviousResults();
+    }
+
+    function displayPreviousResults() {
+      var previousResultsElement = document.getElementById("previous-results");
+      previousResultsElement.innerHTML = "";
+
+      for (var i = gameResults.length - 1; i >= 0; i--) {
+        var gameResult = gameResults[i];
+
+        var resultItem = document.createElement("div");
+        resultItem.classList.add("result-item");
+
+        var playerResult = document.createElement("span");
+        playerResult.innerHTML = "You: <b>" + gameResult.playerSelection + "</b>";
+        resultItem.appendChild(playerResult);
+
+        var vsText = document.createElement("span");
+        vsText.innerHTML = " vs ";
+        resultItem.appendChild(vsText);
+
+        var computerResult = document.createElement("span");
+        computerResult.innerHTML = "<b>" + gameResult.computerSelection + "</b>: Computer";
+        resultItem.appendChild(computerResult);
+
+        var resultOutcome = document.createElement("span");
+        resultOutcome.innerHTML = "Result: ";
+        resultItem.appendChild(resultOutcome);
+
+        var resultText = document.createElement("span");
+        resultText.innerHTML = gameResult.result;
+        resultText.classList.add("result-animate");
+        resultText.classList.add("result-" + gameResult.result);
+        resultOutcome.appendChild(resultText);
+
+        previousResultsElement.appendChild(resultItem);
+      }
+
+      previousResultsElement.classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>
